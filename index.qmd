@@ -63,6 +63,9 @@ plt.rcParams['savefig.dpi'] = 300
 
 print("DAFT package imported successfully!")
 print("Ready to create beautiful DAGs!")
+
+
+
 ```
 
 ::: {.callout-note}
@@ -97,16 +100,86 @@ Your task is to recreate these three historical DAGs using DAFT, making them vis
 ![](https://raw.githubusercontent.com/flyaflya/persuasive/642288ea5f79050c05801c3d127084ac0f361a01/images/scurvy2.png)
 
 ```{python}
-#| label: dag-1-1747
-#| echo: true
+import os
+import daft
+import matplotlib.pyplot as plt
 
-# TODO: Replace this placeholder with your DAFT code
-# Create a DAG showing the 1747 understanding: Lemons → Scurvy Prevention
+# Make the figures look sharper
+plt.rcParams['figure.dpi'] = 150
+plt.rcParams['savefig.dpi'] = 300
 
-# Your code here - recreate the DAG from the reference image
-# Use DAFT to create nodes and edges that match the visual structure
-# Customize colors and styling to make it professional
+# Make sure the output folder exists so saving doesn't fail
+os.makedirs("img", exist_ok=True)
+
+def render_and_save(pgm, title, outfile):
+    # Helper to render and save a DAG figure
+    plt.figure(figsize=(4,3))
+    pgm.render()
+    plt.title(title, fontsize=12)
+    plt.tight_layout()
+    plt.savefig(outfile, dpi=300, bbox_inches="tight")
+    plt.show()
 ```
+
+
+```{python}
+# DAG 1 (Styled): 1747 Understanding (Lemons prevent scurvy - correct but incomplete)
+
+pgm_1747_style = daft.PGM(
+    dpi=150,
+    shape=[4,3],
+    origin=[0,0],
+    alternate_style="outer"
+)
+
+# Lemons node
+pgm_1747_style.add_node(
+    "lemons",
+    "Lemons",
+    1, 2,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "lightgoldenrodyellow",
+        "edgecolor": "goldenrod",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Scurvy node
+pgm_1747_style.add_node(
+    "scurvy",
+    "Scurvy",
+    3, 2,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "mistyrose",
+        "edgecolor": "firebrick",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Arrow: Lemons -> Scurvy
+pgm_1747_style.add_edge("lemons", "scurvy")
+
+# Render and save styled plot
+render_and_save(
+    pgm_1747_style,
+    title="1747 Understanding: Lemons prevent scurvy (incomplete model)",
+    outfile="img/dag_1747_styled.png"
+)
+```
+
+**1747 Understanding (James Lind):**  
+Sailors with scurvy were given citrus (like lemons) and recovered.  
+So the belief was basically: lemons → prevent scurvy.
+
+This model was **correct in outcome** (lemons *do* prevent scurvy),  
+but **incomplete**, because they didn’t understand *why* it worked yet.
+They just knew “lemons fix it.”
 
 ### DAG 2: The Misguided Belief (Wrong Understanding)
 
@@ -120,15 +193,85 @@ Your task is to recreate these three historical DAGs using DAFT, making them vis
 ```{python}
 #| label: dag-2-misguided
 #| echo: true
+# DAG 2 (Styled): Misguided Belief
+# Historical story:
+# People thought it was the acid that killed bacteria, and that killing bacteria prevented scurvy.
+# This was WRONG. It led people to replace lemons with cheaper acidic stuff (like vinegar or limes),
+# and scurvy came back.
 
-# TODO: Replace this placeholder with your DAFT code
-# Create a DAG showing the misguided belief: Acid → Bacteria Death → Scurvy Prevention
+pgm_bad_style = daft.PGM(
+    dpi=150,
+    shape=[6,3],
+    origin=[0,0],
+    alternate_style="outer"
+)
 
-# Your code here - recreate the DAG from the reference image
-# This DAG should show the incorrect causal chain
-# Use different colors or styling to indicate this is the wrong understanding
+# Node: Acid
+pgm_bad_style.add_node(
+    "acid",
+    "Acid",
+    1, 2,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "moccasin",
+        "edgecolor": "darkorange",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Node: Bacteria in Food
+pgm_bad_style.add_node(
+    "bacteria",
+    "Bacteria\nin Food",
+    3, 1.5,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "peachpuff",
+        "edgecolor": "orangered",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Node: Scurvy
+pgm_bad_style.add_node(
+    "scurvy",
+    "Scurvy",
+    5, 1,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "mistyrose",
+        "edgecolor": "firebrick",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Edges: Acid -> Bacteria -> Scurvy
+pgm_bad_style.add_edge("acid", "bacteria")
+pgm_bad_style.add_edge("bacteria", "scurvy")
+
+# Render and save to file
+render_and_save(
+    pgm_bad_style,
+    title="Misguided Belief: Acid kills bacteria -> prevents scurvy (WRONG)",
+    outfile="img/dag_misguided_styled.png"
+)
+
 ```
 
+**Misguided Belief (Wrong Theory):**  
+People later claimed the acid was killing bacteria, and *that* is why scurvy went away.
+So they thought:  
+Acid → kills bacteria in food → no scurvy.
+
+This was **wrong**.  
+They started using cheaper acidic things (like limes, vinegar) instead of real citrus high in Vitamin C.  
+Result: scurvy came back, because removing bacteria wasn't the real mechanism.
 ### DAG 3: The 1928 Understanding (Complete and Correct)
 
 **Historical Context:** In 1928, the true mechanism was discovered - it was Vitamin C (ascorbic acid) that prevented scurvy. This complete understanding finally explained why lemons worked and why the acid theory was wrong.
@@ -142,13 +285,89 @@ Your task is to recreate these three historical DAGs using DAFT, making them vis
 #| label: dag-3-1928
 #| echo: true
 
-# TODO: Replace this placeholder with your DAFT code
-# Create a DAG showing the 1928 understanding: Vitamin C → Scurvy Prevention
+# DAG 3 (Styled): 1928+ Correct Understanding
+# Historical story:
+# By ~1928 and into the 1930s, scientists figured out that scurvy is caused by
+# vitamin C deficiency. Vitamin C is needed for proper collagen synthesis.
+# Without collagen, tissues break down → scurvy.
+#
+# So the true causal story is: Vitamin C -> Collagen Synthesis -> Prevents Scurvy.
 
-# Your code here - recreate the DAG from the reference image
-# This should be the most complete and accurate representation
-# Use professional styling that would be suitable for a scientific publication
+pgm_1928_style = daft.PGM(
+    dpi=150,
+    shape=[7,3],
+    origin=[0,0],
+    alternate_style="outer"
+)
+
+# Node: Vitamin C
+pgm_1928_style.add_node(
+    "vitc",
+    "Vitamin C",
+    1, 2,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "lightgreen",
+        "edgecolor": "darkgreen",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Node: Collagen Synthesis
+pgm_1928_style.add_node(
+    "collagen",
+    "Collagen\nSynthesis",
+    3, 1.5,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "lightblue",
+        "edgecolor": "navy",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Node: Scurvy
+pgm_1928_style.add_node(
+    "scurvy",
+    "Scurvy",
+    5, 1,
+    aspect=2.8,
+    scale=1.1,
+    plot_params={
+        "facecolor": "lavender",
+        "edgecolor": "purple",
+        "linewidth": 2,
+        "alpha": 0.9,
+    }
+)
+
+# Edges: Vitamin C -> Collagen Synthesis -> Scurvy
+pgm_1928_style.add_edge("vitc", "collagen")
+pgm_1928_style.add_edge("collagen", "scurvy")
+
+# Render and save to file
+render_and_save(
+    pgm_1928_style,
+    title="1928+: Vitamin C → Collagen → prevents scurvy (correct mechanism)",
+    outfile="img/dag_1928_styled.png"
+)
 ```
+**1928+ Scientific Understanding (Correct Mechanism):**  
+Researchers finally identified the true mechanism:
+Vitamin C is required for proper collagen synthesis.
+Without collagen repair, tissues break down → scurvy.
+
+So the real causal story is:
+Vitamin C → Collagen synthesis → Prevents scurvy.
+
+This explains EVERYTHING:
+- Why lemons worked in 1747 (they had Vitamin C 💡)
+- Why “it’s just acid killing bacteria” was wrong
+- How to *actually* prevent and cure scurvy
 
 ## Student Requirements Section: Mastering DAFT Visualization {#student-analysis-section}
 
