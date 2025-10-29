@@ -1,6 +1,6 @@
 ---
-title: "DAFT Package Challenge"
-subtitle: "Recreating the Scurvy DAGs with Beautiful Visualizations"
+title: "The Scurvy Causal Story"
+subtitle: "Recreating Historical DAGs with DAFT"
 format:
   html: default
 execute:
@@ -8,83 +8,44 @@ execute:
   eval: true
 ---
 
-# 🎨 DAFT Package Challenge - Recreating the Scurvy DAGs
+# The Scurvy Causal Story
 
-::: {.callout-important}
-## 📊 Challenge Requirements In Section [Student Analysis Section](#student-analysis-section)
-- Recreate all three scurvy DAGs using DAFT programming
-- Optional: Demonstrate understanding of DAFT customization options
-:::
+Scurvy was a deadly disease for sailors on long sea voyages. Their gums bled, their teeth fell out, their wounds didn’t heal, and many died. The cure was actually discovered in 1747, then basically lost for over 150 years because people adopted the wrong explanation, and it was finally fully understood in the late 1920s.
 
-## The Problem: Mastering Probabilistic Graphical Models with DAFT
+We’ll look at three historical explanations:
 
-**Core Question:** How can we use the DAFT package to create visually appealing Directed Acyclic Graphs (DAGs) that tell a compelling data story?
+1. **1747 understanding:** “Lemons prevent scurvy.”  
+   This worked, but no one knew why.
 
-**The Challenge:** You'll recreate three historical DAGs depicting the fascinating story of how we lost and rediscovered the cure to scurvy. This challenge teaches you to use DAFT for creating professional-quality probabilistic graphical models.
+2. **Wrong theory:** “Acid kills bacteria in food, so that prevents scurvy.”  
+   This was incorrect and brought scurvy back.
 
-**Our Approach:** We'll work through the three different understandings of the scurvy data generating process, learning DAFT customization techniques while exploring a crucial moment in medical history.
+3. **Modern understanding (1928+):** “Vitamin C is required for collagen repair. Without it, you get scurvy.”  
+   This is the true mechanism.
 
-::: {.callout-warning}
-## ⚠️ AI Partnership Required
+In every diagram below, an arrow means “we believe this causes that.”
 
-This challenge pushes boundaries intentionally. You'll tackle problems that normally require weeks of study, but with Cursor AI as your partner (and your brain keeping it honest), you can accomplish more than you thought possible.
-
-**The new reality:** The four stages of competence are Ignorance → Awareness → Learning → Mastery. AI lets us produce Mastery-level work while operating primarily in the Awareness stage. I focus on awareness training, you leverage AI for execution, and together we create outputs that used to require years of dedicated study.
-:::
-
-## The Scurvy Story: A Data Science Tragedy
-
-Scurvy was a devastating disease that affected sailors on long voyages. The cure was discovered in 1747, but due to a misunderstanding about the cause, the cure was lost for over 150 years. The story involves three different understandings of the data generating process:
-
-1. **1747 Understanding:** Lemons prevent scurvy (correct but incomplete!)
-2. **Misguided Belief:** Acid kills bacteria that causes scurvy (wrong!)
-3. **1928 Understanding:** Vitamin C prevents scurvy (the real mechanism)
-
-## Environment Setup
-
-First, let's install the DAFT package and set up our environment:
 
 ```{python}
-#| label: setup-environment
-#| echo: true
-#| message: false
-#| warning: false
-
-# Install DAFT package (run this in terminal if not already installed)
-# pip install 'daft-pgm'
-
+import os
 import daft
 import matplotlib.pyplot as plt
-import numpy as np
 
-# Set up plotting parameters for better quality
+# high-quality export settings
 plt.rcParams['figure.dpi'] = 150
 plt.rcParams['savefig.dpi'] = 300
 
-print("DAFT package imported successfully!")
-print("Ready to create beautiful DAGs!")
+# make sure we have an output folder for images
+os.makedirs("img", exist_ok=True)
 
-
-
+def render_and_save(pgm, title, outfile):
+    fig = plt.figure(figsize=(4,3))
+    pgm.render()
+    plt.title(title, fontsize=12)
+    plt.savefig(outfile, dpi=300, bbox_inches="tight")
+    plt.close(fig)  # prevents raw <Figure ...> output in final HTML
 ```
 
-::: {.callout-note}
-## 💡 Understanding DAFT
-
-**DAFT (Directed Acyclic Factor Graphs Toolkit)** is a Python package for creating probabilistic graphical models. It's particularly useful for:
-
-- Creating Directed Acyclic Graphs (DAGs)
-- Visualizing causal relationships
-- Communicating data generating processes
-- Creating publication-quality figures
-
-**Key DAFT Concepts:**
-
-- **Nodes:** Represent variables or factors
-- **Edges:** Show relationships between variables
-- **Plates:** Indicate repeated structures
-- **Styling:** Customize colors, shapes, and formatting
-:::
 
 ## The Three DAGs: Your Mission
 
@@ -94,36 +55,42 @@ Your task is to recreate these three historical DAGs using DAFT, making them vis
 
 **Historical Context:** In 1747, James Lind discovered that lemons prevent scurvy through a controlled experiment. However, the understanding was incomplete - they knew lemons worked but not why.
 
-**Your Task:** Recreate this DAG showing the relationship between lemons and scurvy prevention.
 
-**Reference Image:**
-![](https://raw.githubusercontent.com/flyaflya/persuasive/642288ea5f79050c05801c3d127084ac0f361a01/images/scurvy2.png)
+
+
+## 1747: “Lemons prevent scurvy” (incomplete but life-saving)
+
+In 1747, James Lind ran one of the first controlled medical experiments on British sailors with scurvy. He gave some sailors citrus, and they recovered.
+
+The belief after this experiment was basically:
+**lemons → prevent scurvy.**
+
+This was correct in outcome — lemons really did cure scurvy — but nobody knew *why* it worked.
+
+![](img/dag_1747_styled.png){width=400}
 
 ```{python}
+# DAG 1: 1747 understanding
+# Lemons were believed to prevent scurvy (correct outcome, unknown mechanism)
+
 import os
 import daft
 import matplotlib.pyplot as plt
 
-# Make the figures look sharper
+# high-quality export settings
 plt.rcParams['figure.dpi'] = 150
 plt.rcParams['savefig.dpi'] = 300
 
-# Make sure the output folder exists so saving doesn't fail
+# make sure we have an output folder for images
 os.makedirs("img", exist_ok=True)
 
 def render_and_save(pgm, title, outfile):
-    # Helper to render and save a DAG figure
-    plt.figure(figsize=(4,3))
+    fig = plt.figure(figsize=(4,3))
     pgm.render()
     plt.title(title, fontsize=12)
     plt.tight_layout()
     plt.savefig(outfile, dpi=300, bbox_inches="tight")
-    plt.show()
-```
-
-
-```{python}
-# DAG 1 (Styled): 1747 Understanding (Lemons prevent scurvy - correct but incomplete)
+    plt.close(fig)
 
 pgm_1747_style = daft.PGM(
     dpi=150,
@@ -132,7 +99,6 @@ pgm_1747_style = daft.PGM(
     alternate_style="outer"
 )
 
-# Lemons node
 pgm_1747_style.add_node(
     "lemons",
     "Lemons",
@@ -147,7 +113,6 @@ pgm_1747_style.add_node(
     }
 )
 
-# Scurvy node
 pgm_1747_style.add_node(
     "scurvy",
     "Scurvy",
@@ -162,24 +127,14 @@ pgm_1747_style.add_node(
     }
 )
 
-# Arrow: Lemons -> Scurvy
 pgm_1747_style.add_edge("lemons", "scurvy")
 
-# Render and save styled plot
 render_and_save(
     pgm_1747_style,
-    title="1747 Understanding: Lemons prevent scurvy (incomplete model)",
+    title="1747: Lemons prevent scurvy (incomplete model)",
     outfile="img/dag_1747_styled.png"
 )
 ```
-
-**1747 Understanding (James Lind):**  
-Sailors with scurvy were given citrus (like lemons) and recovered.  
-So the belief was basically: lemons → prevent scurvy.
-
-This model was **correct in outcome** (lemons *do* prevent scurvy),  
-but **incomplete**, because they didn’t understand *why* it worked yet.
-They just knew “lemons fix it.”
 
 ### DAG 2: The Misguided Belief (Wrong Understanding)
 
