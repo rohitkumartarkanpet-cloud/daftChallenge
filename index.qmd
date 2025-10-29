@@ -1,6 +1,6 @@
 ---
-title: "The Scurvy Causal Story"
-subtitle: "Recreating Historical DAGs with DAFT"
+title: "DAFT Package Challenge" 
+subtitle: "Recreating the Scurvy DAGs with Beautiful Visualizations"
 format:
   html: default
 execute:
@@ -10,20 +10,23 @@ execute:
 
 # The Scurvy Causal Story
 
-Scurvy was a deadly disease for sailors on long sea voyages. Their gums bled, their teeth fell out, their wounds didn’t heal, and many died. The cure was actually discovered in 1747, then basically lost for over 150 years because people adopted the wrong explanation, and it was finally fully understood in the late 1920s.
+Scurvy was a deadly disease for sailors on long voyages. Their gums bled, their teeth fell out, their wounds didn’t heal, and many died.
 
-We’ll look at three historical explanations:
+The cure was basically discovered in 1747... then lost for 150+ years because people told the wrong story about *why* it worked. The real mechanism wasn’t nailed down until the late 1920s.
 
-1. **1747 understanding:** “Lemons prevent scurvy.”  
-   This worked, but no one knew why.
+We’ll look at 3 historical explanations:
 
-2. **Wrong theory:** “Acid kills bacteria in food, so that prevents scurvy.”  
-   This was incorrect and brought scurvy back.
+1. **1747 belief:** “Lemons prevent scurvy.”
+   (This worked, but they didn’t know why.)
 
-3. **Modern understanding (1928+):** “Vitamin C is required for collagen repair. Without it, you get scurvy.”  
-   This is the true mechanism.
+2. **Wrong theory:** “Acid kills bacteria in food, and that stops scurvy.”
+   (This was wrong — and it brought scurvy back.)
 
-In every diagram below, an arrow means “we believe this causes that.”
+3. **Modern view (~1928+):** “Vitamin C is required to build collagen. Without it, you get scurvy.”
+   (This is the true mechanism.)
+
+In each diagram (DAG), an arrow means “we believe this causes that.”
+
 
 
 ```{python}
@@ -31,75 +34,51 @@ import os
 import daft
 import matplotlib.pyplot as plt
 
-# high-quality export settings
-plt.rcParams['figure.dpi'] = 150
-plt.rcParams['savefig.dpi'] = 300
+# Make output diagrams look crisp
+plt.rcParams["figure.dpi"] = 150
+plt.rcParams["savefig.dpi"] = 300
 
-# make sure we have an output folder for images
+# Ensure output folder exists
 os.makedirs("img", exist_ok=True)
 
 def render_and_save(pgm, title, outfile):
+    """
+    Render a DAFT PGM object, apply a title, save to PNG.
+    We'll call this for each DAG and then embed the saved image below.
+    """
     fig = plt.figure(figsize=(4,3))
     pgm.render()
     plt.title(title, fontsize=12)
-    plt.savefig(outfile, dpi=300, bbox_inches="tight")
-    plt.close(fig)  # prevents raw <Figure ...> output in final HTML
-```
-
-
-## The Three DAGs: Your Mission
-
-Your task is to recreate these three historical DAGs using DAFT, making them visually appealing and professionally formatted.
-
-### DAG 1: The 1747 Understanding (Correct but Incomplete)
-
-**Historical Context:** In 1747, James Lind discovered that lemons prevent scurvy through a controlled experiment. However, the understanding was incomplete - they knew lemons worked but not why.
-
-
-
-
-## 1747: “Lemons prevent scurvy” (incomplete but life-saving)
-
-In 1747, James Lind ran one of the first controlled medical experiments on British sailors with scurvy. He gave some sailors citrus, and they recovered.
-
-The belief after this experiment was basically:
-**lemons → prevent scurvy.**
-
-This was correct in outcome — lemons really did cure scurvy — but nobody knew *why* it worked.
-
-![](img/dag_1747_styled.png){width=400}
-
-```{python}
-# DAG 1: 1747 understanding
-# Lemons were believed to prevent scurvy (correct outcome, unknown mechanism)
-
-import os
-import daft
-import matplotlib.pyplot as plt
-
-# high-quality export settings
-plt.rcParams['figure.dpi'] = 150
-plt.rcParams['savefig.dpi'] = 300
-
-# make sure we have an output folder for images
-os.makedirs("img", exist_ok=True)
-
-def render_and_save(pgm, title, outfile):
-    fig = plt.figure(figsize=(4,3))
-    pgm.render()
-    plt.title(title, fontsize=12)
-    plt.tight_layout()
     plt.savefig(outfile, dpi=300, bbox_inches="tight")
     plt.close(fig)
+```
 
-pgm_1747_style = daft.PGM(
+---
+
+## DAG 1: The 1747 Understanding (Correct but Incomplete)
+
+**What people believed in 1747:**
+James Lind ran one of the first controlled medical experiments on British sailors with scurvy. He gave some sailors citrus (like lemons), and they recovered.
+
+After that test, the belief was basically:
+
+**Lemons → prevent scurvy**
+
+This was **practically right** (citrus really does cure/prevent scurvy), but **scientifically incomplete**. They didn’t know *why* lemons worked yet. “Vitamin C” wasn’t discovered.
+
+```{python}
+# DAG 1: 1747 belief
+# Simple story: Lemons stop scurvy.
+
+pgm_1747 = daft.PGM(
     dpi=150,
     shape=[4,3],
     origin=[0,0],
     alternate_style="outer"
 )
 
-pgm_1747_style.add_node(
+# Lemons node
+pgm_1747.add_node(
     "lemons",
     "Lemons",
     1, 2,
@@ -113,7 +92,8 @@ pgm_1747_style.add_node(
     }
 )
 
-pgm_1747_style.add_node(
+# Scurvy node
+pgm_1747.add_node(
     "scurvy",
     "Scurvy",
     3, 2,
@@ -127,42 +107,56 @@ pgm_1747_style.add_node(
     }
 )
 
-pgm_1747_style.add_edge("lemons", "scurvy")
+# Arrow: Lemons -> Scurvy
+# Interpreted at the time as:
+#   "Giving lemons prevents scurvy"
+pgm_1747.add_edge("lemons", "scurvy")
 
+# Save figure for embedding
 render_and_save(
-    pgm_1747_style,
-    title="1747: Lemons prevent scurvy (incomplete model)",
-    outfile="img/dag_1747_styled.png"
+    pgm_1747,
+    title="1747 Belief: Lemons prevent scurvy (incomplete model)",
+    outfile="img/dag_1747.png"
 )
 ```
+**Why this model is incomplete:**
+They knew lemons helped, but not *why*.
+They had no concept of vitamins yet, so they couldn't explain the mechanism.
+This gap in understanding will become a problem later.
 
-### DAG 2: The Misguided Belief (Wrong Understanding)
+---
 
-**Historical Context:** Over time, people came to believe it was the acid in lemons that killed bacteria which was causing scurvy. This led to lemons being replaced by limes (cheaper but less Vitamin C) or just using acids like vinegar, causing scurvy to return.
+## DAG 2: The Misguided Belief (Wrong Understanding)
 
-**Your Task:** Recreate this DAG showing the incorrect understanding of the data generating process.
+**What people believed later (bad theory):**
+After a while, people *changed* the story. They said:
 
-**Reference Image:**
-![](https://raw.githubusercontent.com/flyaflya/persuasive/8aaffd0a3c967d0a26f506232f998130847be3e8/images/scurvy.png)
+> “It’s not the lemons. It’s the **acid** in lemons. The acid kills bacteria in rotten food, and *that’s* why sailors don’t get scurvy.”
+
+That sounded logical, but it was **wrong**.
+
+So the new (wrong) causal story was:
+
+**Acid → kills bacteria in food → no scurvy**
+
+That belief led to a big mistake:
+- Sailors were given cheap acidic stuff (like vinegar or weak limes) instead of real citrus with high Vitamin C.
+- Scurvy came back.
 
 ```{python}
-#| label: dag-2-misguided
-#| echo: true
-# DAG 2 (Styled): Misguided Belief
-# Historical story:
-# People thought it was the acid that killed bacteria, and that killing bacteria prevented scurvy.
-# This was WRONG. It led people to replace lemons with cheaper acidic stuff (like vinegar or limes),
-# and scurvy came back.
+# DAG 2: Misguided belief
+# Wrong story:
+# Acid kills bacteria -> prevents scurvy
 
-pgm_bad_style = daft.PGM(
+pgm_wrong = daft.PGM(
     dpi=150,
     shape=[6,3],
     origin=[0,0],
     alternate_style="outer"
 )
 
-# Node: Acid
-pgm_bad_style.add_node(
+# Acid node
+pgm_wrong.add_node(
     "acid",
     "Acid",
     1, 2,
@@ -176,8 +170,8 @@ pgm_bad_style.add_node(
     }
 )
 
-# Node: Bacteria in Food
-pgm_bad_style.add_node(
+# Bacteria node
+pgm_wrong.add_node(
     "bacteria",
     "Bacteria\nin Food",
     3, 1.5,
@@ -191,8 +185,8 @@ pgm_bad_style.add_node(
     }
 )
 
-# Node: Scurvy
-pgm_bad_style.add_node(
+# Scurvy node
+pgm_wrong.add_node(
     "scurvy",
     "Scurvy",
     5, 1,
@@ -207,56 +201,48 @@ pgm_bad_style.add_node(
 )
 
 # Edges: Acid -> Bacteria -> Scurvy
-pgm_bad_style.add_edge("acid", "bacteria")
-pgm_bad_style.add_edge("bacteria", "scurvy")
+pgm_wrong.add_edge("acid", "bacteria")
+pgm_wrong.add_edge("bacteria", "scurvy")
 
-# Render and save to file
+# Save figure
 render_and_save(
-    pgm_bad_style,
-    title="Misguided Belief: Acid kills bacteria -> prevents scurvy (WRONG)",
-    outfile="img/dag_misguided_styled.png"
+    pgm_wrong,
+    title="Wrong Theory: Acid kills bacteria → prevents scurvy",
+    outfile="img/dag_wrong.png"
 )
-
 ```
+**Why this model is wrong:**
+Scurvy is **not** a food-poisoning / bacteria problem.
+It’s caused by lack of Vitamin C.
+When navies switched to “cheap acid but not real citrus,” sailors got scurvy again.
+This is why a wrong causal model literally put lives at risk.
 
-**Misguided Belief (Wrong Theory):**  
-People later claimed the acid was killing bacteria, and *that* is why scurvy went away.
-So they thought:  
-Acid → kills bacteria in food → no scurvy.
+---
 
-This was **wrong**.  
-They started using cheaper acidic things (like limes, vinegar) instead of real citrus high in Vitamin C.  
-Result: scurvy came back, because removing bacteria wasn't the real mechanism.
-### DAG 3: The 1928 Understanding (Complete and Correct)
+## DAG 3: The 1928+ Understanding (Complete and Correct)
 
-**Historical Context:** In 1928, the true mechanism was discovered - it was Vitamin C (ascorbic acid) that prevented scurvy. This complete understanding finally explained why lemons worked and why the acid theory was wrong.
+**What scientists finally figured out (~1928 and after):**
+Scurvy happens because your body can’t build or repair collagen without Vitamin C.
 
-**Your Task:** Recreate this DAG showing the complete and correct understanding of the scurvy data generating process.
+So the correct mechanism is:
 
-**Reference Image:**
-![](https://raw.githubusercontent.com/flyaflya/persuasive/main/images/scurvy3.png)
+**Vitamin C → enables collagen synthesis → prevents scurvy**
+
+Now we know exactly *why* citrus worked in 1747. It had Vitamin C.
 
 ```{python}
-#| label: dag-3-1928
-#| echo: true
+# DAG 3: Modern correct chain
+# Vitamin C -> Collagen synthesis -> (prevents) Scurvy
 
-# DAG 3 (Styled): 1928+ Correct Understanding
-# Historical story:
-# By ~1928 and into the 1930s, scientists figured out that scurvy is caused by
-# vitamin C deficiency. Vitamin C is needed for proper collagen synthesis.
-# Without collagen, tissues break down → scurvy.
-#
-# So the true causal story is: Vitamin C -> Collagen Synthesis -> Prevents Scurvy.
-
-pgm_1928_style = daft.PGM(
+pgm_modern = daft.PGM(
     dpi=150,
     shape=[7,3],
     origin=[0,0],
     alternate_style="outer"
 )
 
-# Node: Vitamin C
-pgm_1928_style.add_node(
+# Vitamin C node
+pgm_modern.add_node(
     "vitc",
     "Vitamin C",
     1, 2,
@@ -270,8 +256,8 @@ pgm_1928_style.add_node(
     }
 )
 
-# Node: Collagen Synthesis
-pgm_1928_style.add_node(
+# Collagen Synthesis node
+pgm_modern.add_node(
     "collagen",
     "Collagen\nSynthesis",
     3, 1.5,
@@ -285,8 +271,8 @@ pgm_1928_style.add_node(
     }
 )
 
-# Node: Scurvy
-pgm_1928_style.add_node(
+# Scurvy node
+pgm_modern.add_node(
     "scurvy",
     "Scurvy",
     5, 1,
@@ -301,158 +287,20 @@ pgm_1928_style.add_node(
 )
 
 # Edges: Vitamin C -> Collagen Synthesis -> Scurvy
-pgm_1928_style.add_edge("vitc", "collagen")
-pgm_1928_style.add_edge("collagen", "scurvy")
+pgm_modern.add_edge("vitc", "collagen")
+pgm_modern.add_edge("collagen", "scurvy")
 
-# Render and save to file
+# Save figure
 render_and_save(
-    pgm_1928_style,
-    title="1928+: Vitamin C → Collagen → prevents scurvy (correct mechanism)",
-    outfile="img/dag_1928_styled.png"
+    pgm_modern,
+    title="Modern View: Vitamin C → Collagen → prevents scurvy",
+    outfile="img/dag_modern.png"
 )
 ```
-**1928+ Scientific Understanding (Correct Mechanism):**  
-Researchers finally identified the true mechanism:
-Vitamin C is required for proper collagen synthesis.
-Without collagen repair, tissues break down → scurvy.
+**Why this is finally correct:**
+- It explains *why* citrus worked in 1747 (Vitamin C).
+- It explains why “acid kills bacteria” was bogus.
+- It explains exactly how to prevent and cure scurvy.
 
-So the real causal story is:
-Vitamin C → Collagen synthesis → Prevents scurvy.
-
-This explains EVERYTHING:
-- Why lemons worked in 1747 (they had Vitamin C 💡)
-- Why “it’s just acid killing bacteria” was wrong
-- How to *actually* prevent and cure scurvy
-
-## Student Requirements Section: Mastering DAFT Visualization {#student-analysis-section}
-
-**Your Task:** Demonstrate your mastery of DAFT through comprehensive recreation of the three scurvy DAGs and thoughtful analysis. The bulk of your grade comes from successfully recreating the DAGs and answering the discussion questions.
-
-::: {.callout-important}
-## 📊 Challenge Requirements
-
-**Complete all DAG recreation sections:**
-
-1. **DAG 1 (1747):** Lemons prevent scurvy - correct but incomplete
-2. **DAG 2 (Misguided):** Acid kills bacteria - wrong understanding  
-3. **DAG 3 (1928):** Vitamin C prevents scurvy - complete and correct
-4. **Optional:** Add a little professional styling to the DAGs to make them more visually appealing (example: use nice fill colors and/or enclose the text in the ellipse completely).
-:::
-
-### Professional Quality Standards
-
-**Your DAGs should:**
-
-- (90% grade): Accurately recreate the reference images
-- (100% grade): Add professional colors and possibly play with shapes to make it more visually appealing (example: use nice fill colors and/or enclose the text in the ellipse completely). Erase everything but the story of scurvy and the three DAGs
-- Include clear, readable labels
-- Demonstrate understanding of DAFT customization options
-- Be suitable for a business or academic audience
-
-### Example: Professional DAFT Node Styling
-
-Here's an example (see @fig-example-node) of how to create a professionally styled node in DAFT with nice captions and references to the figure:
-
-```{python}
-#| label: fig-example-node
-#| echo: true
-#| fig-cap: "Example: Professional DAFT Node Styling"
-
-import daft
-import matplotlib.pyplot as plt
-
-# Create a PGM object
-pgm = daft.PGM(dpi=150, alternate_style="outer")
-
-# Example of a professionally styled node
-pgm.add_node("vitamin_c", "Vitamin C\nIntake" + r" $(X)$", 1, 1, aspect = 3, scale = 1.1,
-             plot_params={
-                 'facecolor': 'lightgreen', 
-                 'edgecolor': 'darkgreen', 
-                 'linewidth': 2,
-                 'alpha': 0.8,
-             })
-pgm.add_node("health", "Healthiness\n"+r" $(Y)$", 3.25, 1, aspect = 3, scale = 1.1,
-             plot_params={
-                 'facecolor': 'thistle', 
-                 'edgecolor': 'purple', 
-                 'linewidth': 2,
-                 'alpha': 0.8,
-             })
-pgm.add_edge("vitamin_c", "health")
-
-pgm.render()
-```
-
-**Key Styling Parameters:**
-
-- `facecolor`: Background color of the node
-- `edgecolor`: Border color of the node  
-- `linewidth`: Thickness of the border
-- `alpha`: Transparency (0.0 to 1.0)
-- `fontsize`: Size of text inside the node
-- `aspect`: Width/height aspect ratio of the node (default: 1.0)
-- `scale`: Height of the node (default: 1.0)
-
-## Getting Started: Repository Setup 🚀
-
-::: {.callout-important}
-## 📁 Getting Started
-
-**Step 1:** Create a new repository in your GitHub account named "daftChallenge" (forked from [https://github.com/flyaflya/daftChallenge](https://github.com/flyaflya/daftChallenge))
-
-**Step 2:** Clone your repository locally using Cursor (or VS Code)
-
-**Step 3:** Be sure to install DAFT in your environment: `pip install 'daft-pgm'`.
-
-**Step 4:** Modify your local copy of this `index.qmd` file  to complete the challenge and get it to be a github pages website.
-:::
-
-### Getting Started Tips
-
-## Key DAFT Resources
-
-**Essential DAFT Documentation:**
-
-- [DAFT Documentation](https://docs.daft-pgm.org/en/latest/)
-- [DAFT Examples](https://docs.daft-pgm.org/en/latest/examples/)
-- [Matplotlib Colors](https://matplotlib.org/stable/gallery/color/named_colors.html)
-
-**Key DAFT Parameters to Explore:**
-
-- `plot_params`: Dictionary of matplotlib parameters for styling
-- `aspect`: Controls node width (default: 1.0)
-- `scale`: Controls node size (default: 1.0)
-- `fontsize`: Text size in the node
-- `alternate`: Use alternative node shape (True/False)
-
-## Grading Rubric 🎓
-
-**90% Grade:** Successfully recreate all 3 DAGs with good visual quality.
-
-**100% Grade:** Recreate all 3 DAGs with enhanced quality and visual aesthetics (example: use nice fill colors and/or enclose the text in the ellipse completely).
-
-## Submission Checklist ✅
-
-**Minimum Requirements (Required for Any Points):**
-
-- [ ] Created repository named "daftChallenge" in your GitHub account (forked from [https://github.com/flyaflya/daftChallenge](https://github.com/flyaflya/daftChallenge))
-- [ ] Cloned repository locally using Cursor (or VS Code)
-- [ ] Installed DAFT package successfully
-- [ ] Document rendered to HTML successfully
-- [ ] HTML files uploaded to your repository
-- [ ] GitHub Pages enabled and working
-- [ ] Site accessible at `https://[your-username].github.io/daftChallenge/`
-
-**90% Grade Requirements:**
-
-- [ ] Successfully recreate all 3 DAGs
-- [ ] Good visual quality with appropriate styling
-
-**100% Grade Requirements:**
-
-- [ ] All DAG recreations completed with professional quality
-- [ ] Erase everything but the story of scurvy and the three DAGs (make it a nice concise narrative about scurvy)
-
-
+This is the first model that gives the true biological mechanism, not just correlation.
 
